@@ -190,7 +190,7 @@ if not df_city.empty and not df_zipcode.empty and not df_all_cities.empty:
     plt.xlabel('Year')
     plt.ylabel(f'Price in $')
     plt.xticks(rotation=45)
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.show()
     st.pyplot(plt)
 else:
