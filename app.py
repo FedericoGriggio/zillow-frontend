@@ -4,6 +4,8 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
 
 # Initialize session state
 if "predicted_price" not in st.session_state:
@@ -186,15 +188,34 @@ st.write("All Cities DF shape:", df_all_cities.shape)
 st.write("Sample of df_city:", df_city.head())
 st.write("Sample of df_zipcode:", df_zipcode.head())
 st.write("Sample of df_all_cities:", df_all_cities.head())
-plt.clf()
-plt.figure(figsize=(14, 8))
-sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
-sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
-sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
-plt.title('Price in $ over time')
-plt.xlabel('Year')
-plt.ylabel(f'Price in $')
-plt.xticks(rotation=45)
-plt.tight_layout()
-# plt.show()
-st.pyplot(plt)
+
+# Check if dataframes exist before plotting
+if 'df_city' in locals() and 'df_zipcode' in locals() and 'df_all_cities' in locals():
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_city['date'], y=df_city['price'], name=f'City: {city}', line=dict(width=3)))
+    fig.add_trace(go.Scatter(x=df_zipcode['date'], y=df_zipcode['price'], name=f'Zipcode: {zipcode}', line=dict(width=3)))
+    fig.add_trace(go.Scatter(x=df_all_cities['date'], y=df_all_cities['price'], name='All Cities', line=dict(width=3)))
+
+    fig.update_layout(
+        title='Price in $ over time',
+        xaxis_title='Year',
+        yaxis_title='Price in $',
+        template='plotly_white',
+        height=500
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.warning("Enter a ZIP code to view price trends")
+# plt.clf()
+# plt.figure(figsize=(14, 8))
+# sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
+# sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
+# sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
+# plt.title('Price in $ over time')
+# plt.xlabel('Year')
+# plt.ylabel(f'Price in $')
+# plt.xticks(rotation=45)
+# plt.tight_layout()
+# # plt.show()
+# st.pyplot(plt)
