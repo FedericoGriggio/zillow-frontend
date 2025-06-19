@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 df_city = pd.DataFrame()
 df_zipcode = pd.DataFrame()
 df_all_cities = pd.DataFrame()
+plt.clf()
 
 # Initialize session state
 if "predicted_price" not in st.session_state:
@@ -181,17 +182,19 @@ else:
 
 
 if not df_city.empty and not df_zipcode.empty and not df_all_cities.empty:
-    plt.clf()
-    plt.figure(figsize=(14, 8))
-    sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
-    sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
-    sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
-    plt.title('Price in $ over time')
-    plt.xlabel('Year')
-    plt.ylabel(f'Price in $')
-    plt.xticks(rotation=45)
-    # plt.tight_layout()
-    plt.show()
-    st.pyplot(plt)
+   plt.close('all')  # Close all existing figures
+   fig, ax = plt.subplots(figsize=(14, 8))  # Create new figure and axis
+
+   sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}', ax=ax)
+   sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}', ax=ax)
+   sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities', ax=ax)
+
+   ax.set_title('Price in $ over time')
+   ax.set_xlabel('Year')
+   ax.set_ylabel('Price in $')
+   plt.setp(ax.get_xticklabels(), rotation=45)
+
+   st.pyplot(fig)
+   plt.close(fig)  # Close the figure after displaying
 else:
-    st.warning("Enter a ZIP code to view price trends")
+   st.warning("Enter a ZIP code to view price trends")
