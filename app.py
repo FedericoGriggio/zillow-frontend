@@ -136,46 +136,48 @@ if zipcode:
         except Exception as e:
             st.error(f"An unexpected error occurred while fetching trend data: {e}")
     st.header("📉 Historical Price Trend")
+
+    # Call zipcode_trend api
+    try:
+        #zipcode_url = "http://127.0.0.1:8000/zipcode_trend"  # for local dev
+        zipcode_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/zipcode_trend'
+        response = requests.post(zipcode_url, json={"zip_code": zipcode})
+        response.raise_for_status()
+        data = response.json()
+        df_zipcode = pd.DataFrame(data["trend"])
+        df_zipcode["date"] = pd.to_datetime(df_zipcode["date"])
+    except Exception as e:
+        st.error(f"Zipcode_trend Error fetching trend data: {e}")
+
+    # Call filter_city api
+    try:
+        #city_url = "http://127.0.0.1:8000/filter_city"  # for local dev
+        city_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/filter_city'
+        response = requests.get(city_url, params={"zip_code": zipcode})
+        response.raise_for_status()
+        data = response.json()
+        df_city = pd.DataFrame(data["data"])
+        df_city["date"] = pd.to_datetime(df_city["date"])
+        city = data['city']
+    except Exception as e:
+        st.error(f"Filter_city Error fetching trend data: {e}")
+
+    # Call all_city api
+    try:
+        #all_city_url = "http://127.0.0.1:8000/price_all_cities"  # for local dev
+        all_city_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/price_all_cities'
+        response = requests.get(all_city_url)
+        response.raise_for_status()
+        data = response.json()
+        df_all_cities = pd.DataFrame(data["data"])
+        df_all_cities["date"] = pd.to_datetime(df_all_cities["date"])
+    except Exception as e:
+        st.error(f"Filter_city Error fetching trend data: {e}")
 else:
     st.info("ℹ️ Enter a ZIP code above to check investment outlook.")
 
 
-# Call zipcode_trend api
-try:
-    #zipcode_url = "http://127.0.0.1:8000/zipcode_trend"  # for local dev
-    zipcode_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/zipcode_trend'
-    response = requests.post(zipcode_url, json={"zip_code": zipcode})
-    response.raise_for_status()
-    data = response.json()
-    df_zipcode = pd.DataFrame(data["trend"])
-    df_zipcode["date"] = pd.to_datetime(df_zipcode["date"])
-except Exception as e:
-    st.error(f"Zipcode_trend Error fetching trend data: {e}")
 
-# Call filter_city api
-try:
-    #city_url = "http://127.0.0.1:8000/filter_city"  # for local dev
-    city_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/filter_city'
-    response = requests.get(city_url, params={"zip_code": zipcode})
-    response.raise_for_status()
-    data = response.json()
-    df_city = pd.DataFrame(data["data"])
-    df_city["date"] = pd.to_datetime(df_city["date"])
-    city = data['city']
-except Exception as e:
-    st.error(f"Filter_city Error fetching trend data: {e}")
-
-# Call all_city api
-try:
-    #all_city_url = "http://127.0.0.1:8000/price_all_cities"  # for local dev
-    all_city_url = 'https://my-docker-image-for-zillow-880235258708.europe-west1.run.app/price_all_cities'
-    response = requests.get(all_city_url)
-    response.raise_for_status()
-    data = response.json()
-    df_all_cities = pd.DataFrame(data["data"])
-    df_all_cities["date"] = pd.to_datetime(df_all_cities["date"])
-except Exception as e:
-    st.error(f"Filter_city Error fetching trend data: {e}")
 
 
 # Plot price for city
@@ -191,56 +193,18 @@ except Exception as e:
 
 # Check if dataframes exist before plotting
 if 'df_city' in locals() and 'df_zipcode' in locals() and 'df_all_cities' in locals():
-    # fig = go.Figure()
-    # fig.add_trace(go.Scatter(x=df_city['date'], y=df_city['price'], name=f'City: {city}', line=dict(width=3)))
-    # fig.add_trace(go.Scatter(x=df_zipcode['date'], y=df_zipcode['price'], name=f'Zipcode: {zipcode}', line=dict(width=3)))
-    # fig.add_trace(go.Scatter(x=df_all_cities['date'], y=df_all_cities['price'], name='All Cities', line=dict(width=3)))
-
-    # fig.update_layout(
-    #     title='Price in $ over time',
-    #     xaxis_title='Year',
-    #     yaxis_title='Price in $',
-    #     template='plotly_white',
-    #     height=500
-    # )
-
-    # st.plotly_chart(fig, use_container_width=True)
-    # plt.clf()
-    # plt.figure(figsize=(14, 8))
-    # sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
-    # sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
-    # sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
-    # plt.title('Price in $ over time')
-    # plt.xlabel('Year')
-    # plt.ylabel(f'Price in $')
-    # plt.xticks(rotation=45)
-    # plt.tight_layout()
-    # # plt.show()
-    # st.pyplot(plt)
-
-
-
-
-    # Combine all dataframes with labels
-    df_city_labeled = df_city.copy()
-    df_city_labeled['category'] = f'City: {city}'
-
-    df_zipcode_labeled = df_zipcode.copy()
-    df_zipcode_labeled['category'] = f'Zipcode: {zipcode}'
-
-    df_all_cities_labeled = df_all_cities.copy()
-    df_all_cities_labeled['category'] = 'All Cities'
-
-    # Combine all data
-    combined_df = pd.concat([df_city_labeled, df_zipcode_labeled, df_all_cities_labeled])
-
-    # Create the plot with confidence intervals
-    fig = px.line(combined_df, x='date', y='price', color='category',
-                title='Price in $ over time',
-                labels={'date': 'Year', 'price': 'Price in $'})
-
-    fig.update_layout(template='plotly_white', height=500)
-    st.plotly_chart(fig, use_container_width=True)
+    plt.clf()
+    plt.figure(figsize=(14, 8))
+    sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
+    sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
+    sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
+    plt.title('Price in $ over time')
+    plt.xlabel('Year')
+    plt.ylabel(f'Price in $')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    # plt.show()
+    st.pyplot(plt)
 else:
     st.warning("Enter a ZIP code to view price trends")
 
