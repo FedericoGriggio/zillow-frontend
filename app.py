@@ -205,18 +205,42 @@ if 'df_city' in locals() and 'df_zipcode' in locals() and 'df_all_cities' in loc
     # )
 
     # st.plotly_chart(fig, use_container_width=True)
-    plt.clf()
-    plt.figure(figsize=(14, 8))
-    sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
-    sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
-    sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
-    plt.title('Price in $ over time')
-    plt.xlabel('Year')
-    plt.ylabel(f'Price in $')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    # plt.show()
-    st.pyplot(plt)
+    # plt.clf()
+    # plt.figure(figsize=(14, 8))
+    # sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
+    # sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
+    # sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
+    # plt.title('Price in $ over time')
+    # plt.xlabel('Year')
+    # plt.ylabel(f'Price in $')
+    # plt.xticks(rotation=45)
+    # plt.tight_layout()
+    # # plt.show()
+    # st.pyplot(plt)
+
+
+
+
+    # Combine all dataframes with labels
+    df_city_labeled = df_city.copy()
+    df_city_labeled['category'] = f'City: {city}'
+
+    df_zipcode_labeled = df_zipcode.copy()
+    df_zipcode_labeled['category'] = f'Zipcode: {zipcode}'
+
+    df_all_cities_labeled = df_all_cities.copy()
+    df_all_cities_labeled['category'] = 'All Cities'
+
+    # Combine all data
+    combined_df = pd.concat([df_city_labeled, df_zipcode_labeled, df_all_cities_labeled])
+
+    # Create the plot with confidence intervals
+    fig = px.line(combined_df, x='date', y='price', color='category',
+                title='Price in $ over time',
+                labels={'date': 'Year', 'price': 'Price in $'})
+
+    fig.update_layout(template='plotly_white', height=500)
+    st.plotly_chart(fig, use_container_width=True)
 else:
     st.warning("Enter a ZIP code to view price trends")
 
