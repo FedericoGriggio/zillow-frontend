@@ -177,21 +177,6 @@ else:
     st.info("ℹ️ Enter a ZIP code above to check investment outlook.")
 
 
-
-
-
-# Plot price for city
-#k = df_city["zip_code"]  # for labeling
-
-# st.write("City DF shape:", df_city.shape)
-# st.write("Zipcode DF shape:", df_zipcode.shape)
-# st.write("All Cities DF shape:", df_all_cities.shape)
-
-# st.write("Sample of df_city:", df_city.head())
-# st.write("Sample of df_zipcode:", df_zipcode.head())
-# st.write("Sample of df_all_cities:", df_all_cities.head())
-
-# Check if dataframes exist before plotting
 if 'df_city' in locals() and 'df_zipcode' in locals() and 'df_all_cities' in locals():
     plt.clf()
     plt.figure(figsize=(14, 8))
@@ -207,17 +192,3 @@ if 'df_city' in locals() and 'df_zipcode' in locals() and 'df_all_cities' in loc
     st.pyplot(plt)
 else:
     st.warning("Enter a ZIP code to view price trends")
-
-
-# plt.clf()
-# plt.figure(figsize=(14, 8))
-# sns.lineplot(data=df_city, x='date', y='price', label=f'City: {city}')
-# sns.lineplot(data=df_zipcode, x='date', y='price', label=f'Zipcode: {zipcode}')
-# sns.lineplot(data=df_all_cities, x='date', y='price', label='All Cities')
-# plt.title('Price in $ over time')
-# plt.xlabel('Year')
-# plt.ylabel(f'Price in $')
-# plt.xticks(rotation=45)
-# plt.tight_layout()
-# # plt.show()
-# st.pyplot(plt)
